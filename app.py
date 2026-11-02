@@ -18,7 +18,12 @@ st.markdown(
 )
 
 # Configuración de la API Key de Gemini
-gemini_key = os.getenv("GEMINI_API_KEY")
+try:
+    gemini_key = st.secrets["API_KEY"]
+except (KeyError, st.errors.StreamlitSecretNotFoundError):
+    gemini_key = None
+
+gemini_key = gemini_key or os.getenv("GEMINI_API_KEY")
 
 # Sidebar para configurar la clave si no está en las variables de entorno
 with st.sidebar:
@@ -26,7 +31,7 @@ with st.sidebar:
     if not gemini_key:
         gemini_key = st.text_input("Ingresa tu Gemini API Key:", type="password")
     else:
-        st.success("🔑 API Key detectada en el entorno.")
+        st.success("🔑 API Key detectada en los secretos o el entorno.")
     
     st.markdown("---")
     st.markdown("### Sobre el Asistente")
@@ -77,7 +82,7 @@ else:
             
             try:
                 response = client.models.generate_content(
-                    model='gemini-2.5-flash',
+                    model='gemini-3.5-flash',
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=system_instruction,
